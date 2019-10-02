@@ -1,11 +1,11 @@
 
 require('dotenv').config();
 var axios = require("axios");
+var keys = require("./keys.js");
 
 var Spotify = require('node-spotify-api');
 var spotify = new Spotify(keys.spotify); // this is what pulls the keys and id's from keys.js file
 
-var keys = require("./keys.js");
 var fs = require('fs');
 
 var action = process.argv[2];
@@ -30,8 +30,7 @@ function UserExicutes(action, value) {
       break;
     case "do-what-it-says":
       doWhatItSays(value);
-		
-      break;
+		  break;
     default:
       console.log("invaild entry");
   }
@@ -53,6 +52,8 @@ spotify.search({ type: 'track', query: trackName }, function(err, data) {
   console.log(data.tracks.items[0].preview_url)  // logs the preview link of the track
 });
 };
+
+
 //todo OMDB Movies
 
 function movieThis(value) {
@@ -65,7 +66,7 @@ axios.get(queryUrl).then(
     console.log("Title: " + response.data.Title);
     console.log("Release Year: " + response.data.Year);
     console.log("IMDB Rating: " + response.data.imdbRating);
-    console.log(JSON.stringify("Rotten Tomatoes Rating of the movie: " + response.data.Ratings)); //! its showning "object"!!!
+    console.log("Rotten Tomatoes Rating of the movie: " + JSON.stringify(response.data.Ratings[0].Value)); //! its showning "object"!!!
     console.log("Country: " + response.data.Country);
     console.log("Language: " + response.data.Language);
     console.log("Plot: " + response.data.Plot);
@@ -100,37 +101,32 @@ axios.get(queryUrl).then(
 
   function concertInfo(value) {
     
-      var queryUrl = "https://rest.bandsintown.com/artists/" + value + "/events?app_id=codingbootcamp";
-      request(queryUrl, function(error, response, body) {
-      // If the request is successful
-      if (!error && response.statusCode === 200) {
-          var concerts = JSON.parse(body);
-          for (var i = 0; i < concerts.length; i++) {  
-              console.log("------------Event info-----------");  
-              fs.appendFileSync("log.txt", "------------Event info-----------\n");//Append in log.txt file
-              console.log(i);
-              fs.appendFileSync("log.txt", i+"\n");
-              console.log("Name of the Venue: " + concerts[i].venue.name);
-              fs.appendFileSync("log.txt", "Name of the Venue: " + concerts[i].venue.name+"\n");
-              console.log("Venue Location: " +  concerts[i].venue.city);
-              fs.appendFileSync("log.txt", "Venue Location: " +  concerts[i].venue.city+"\n");
-              console.log("Date of the Event: " +  concerts[i].datetime);
-              fs.appendFileSync("log.txt", "Date of the Event: " +  concerts[i].datetime+"\n");
-              console.log("_____________________________________");
-              fs.appendFileSync("log.txt", "_____________________________________"+"\n");
-          }
-    } else if (error.request) {
-      // The request was made but no response was received
-      // `error.request` is an object that comes back with details pertaining to the error that occurred.
-      console.log(error.request);
-    } else {
-      // Something happened in setting up the request that triggered an Error
-      console.log("Error", error.message);
-    }
-    console.log(error.config);
-  });
+    var queryUrl = "https://rest.bandsintown.com/artists/" + value + "/events?app_id=codingbootcamp";
+    //console.log(queryUrl)
+    axios.get(queryUrl).then(function (data) {
+     // console.log(data.data);
+      
+      var concerts = JSON.parse(data);
+      
+        for (var i = 0; i < concerts.length; i++) {  
+            console.log("------------Event info-----------");  
+            fs.appendFileSync("log.txt", "------------Event info-----------\n");//Append in log.txt file
+            console.log(i);
+            fs.appendFileSync("log.txt", i+"\n");
+            console.log("Name of the Venue: " + concerts[i].venue.name);
+            fs.appendFileSync("log.txt", "Name of the Venue: " + concerts[i].venue.name+"\n");
+            console.log("Venue Location: " +  concerts[i].venue.city);
+            fs.appendFileSync("log.txt", "Venue Location: " +  concerts[i].venue.city+"\n");
+            console.log("Date of the Event: " +  concerts[i].datetime);
+            fs.appendFileSync("log.txt", "Date of the Event: " +  concerts[i].datetime+"\n");
+            console.log("_____________________________________");
+            fs.appendFileSync("log.txt", "_____________________________________"+"\n");
+        }
+  
+});
 };
 
+     
   //todo liri
 
   function doWhatItSays(){

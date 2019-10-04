@@ -1,5 +1,7 @@
 
 require('dotenv').config();
+var moment = require('moment'); //Both required to use moment for node
+moment().format();
 var axios = require("axios");
 var keys = require("./keys.js");
 
@@ -20,15 +22,19 @@ UserExicutes(action, value);
 function UserExicutes(action, value) {
   switch (action) {
     case "spotify-this-song":
+    case "song":
       spotifySong(value);
       break;
     case "movie-this":
+      case "movie":
       movieThis(value);
       break;
     case "concert-this":
+      case "concert":
       concertInfo(value);
       break;
     case "do-what-it-says":
+      case "do":
       doWhatItSays(value);
 		  break;
     default:
@@ -44,9 +50,9 @@ spotify.search({ type: 'track', query: trackName }, function(err, data) {
   if (err) {
     return console.log('Error occurred: ' + err);
   } else 
-  (
+  
   // combine these later, separate lines with \n
-  console.log(JSON.stringify(data.tracks.items[0].album.artists[0].name)));  // logs the artist name
+  console.log(JSON.stringify(data.tracks.items[0].album.artists[0].name));  // logs the artist name
   console.log(data.tracks.items[0].name)  // logs the track name
   console.log(data.tracks.items[0].album.name)  // logs the album of the track
   console.log(data.tracks.items[0].preview_url)  // logs the preview link of the track
@@ -99,34 +105,28 @@ axios.get(queryUrl).then(
 
 
 
-  function concertInfo(value) {
-    
-    var queryUrl = "https://rest.bandsintown.com/artists/" + value + "/events?app_id=codingbootcamp";
-    //console.log(queryUrl)
-    axios.get(queryUrl).then(function (data) {
-     // console.log(data.data);
-      
-      var concerts = JSON.parse(data);
-      
-        for (var i = 0; i < concerts.length; i++) {  
-            console.log("------------Event info-----------");  
-            fs.appendFileSync("log.txt", "------------Event info-----------\n");//Append in log.txt file
-            console.log(i);
-            fs.appendFileSync("log.txt", i+"\n");
-            console.log("Name of the Venue: " + concerts[i].venue.name);
-            fs.appendFileSync("log.txt", "Name of the Venue: " + concerts[i].venue.name+"\n");
-            console.log("Venue Location: " +  concerts[i].venue.city);
-            fs.appendFileSync("log.txt", "Venue Location: " +  concerts[i].venue.city+"\n");
-            console.log("Date of the Event: " +  concerts[i].datetime);
-            fs.appendFileSync("log.txt", "Date of the Event: " +  concerts[i].datetime+"\n");
-            console.log("_____________________________________");
-            fs.appendFileSync("log.txt", "_____________________________________"+"\n");
+  function concertInfo(artist) {
+    var queryUrl = "https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp";
+    axios.get(queryUrl).then(
+        function(response) {
+        if (response.data[0]) {
+              console.log("------------------EVENT V---------------------");
+              
+              console.log("Event Veunue: " + response.data[0].venue.name);
+              fs.appendFileSync("log.txt", "Name of the Venue: " + response.data[0].venue.name+"\n");
+              console.log("Event Location: " + response.data[0].venue.city);
+              fs.appendFileSync("./log.txt", "Event location: " + response.data[0].venue.city + "\n");
+                var eventDateTime = moment(response.data[0].datetime);
+                console.log("Event Date & Time: " + eventDateTime.format("dddd, MMMM Do YYYY"));
+            }
+            else {
+                console.log("No results found.");
+            }
         }
-  
-});
-};
-
-     
+    ).catch(function (error) {
+        console.log (error);
+  });
+}
   //todo liri
 
   function doWhatItSays(){

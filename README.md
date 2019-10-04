@@ -22,6 +22,9 @@ fs
 moment
 axios
 node-spotify-api
+
+plz got IMAGE folder for SCREENSHOTS.
+
 The successful Bands In Town Call alt text
 
 The successfull case when calling "spotify-this-song" or "song" Song alt text
